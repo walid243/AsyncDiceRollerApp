@@ -2,13 +2,13 @@ package com.example.asyncdicerollerapp
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.View
 import android.widget.ImageView
 import com.example.asyncdicerollerapp.databinding.ActivityMainBinding
 import kotlinx.coroutines.*
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
+    private lateinit var players: List<Player>
     private val diceList = listOf(
         R.drawable.dice_1,
         R.drawable.dice_2,
@@ -22,18 +22,30 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-
+        players = listOf(
+            Player(binding.player1.text.toString(), binding.dice1, binding.dice2),
+            Player(binding.player2.text.toString(), binding.dice3, binding.dice4),
+            Player(binding.player3.text.toString(), binding.dice5, binding.dice6),
+            Player(binding.player4.text.toString(), binding.dice7, binding.dice8)
+        )
         binding.launchButton.setOnClickListener {
-            val order = mutableListOf(
-                    launchCoroutine(binding.dice1),
-                    launchCoroutine(binding.dice2),
-                    launchCoroutine(binding.dice3),
-                    launchCoroutine(binding.dice4))
+            CoroutineScope(Dispatchers.Default).launch {
+                players[0].valueDice1 = launchCoroutineAsync(players[0].dice1)
+                players[0].valueDice2 = launchCoroutineAsync(players[0].dice2)
 
+                players[1].valueDice1 = launchCoroutineAsync(players[1].dice1)
+                players[1].valueDice2 = launchCoroutineAsync(players[1].dice2)
+
+                players[2].valueDice1 = launchCoroutineAsync(players[2].dice1)
+                players[2].valueDice2 = launchCoroutineAsync(players[2].dice2)
+
+                players[3].valueDice1 = launchCoroutineAsync(players[3].dice1)
+                players[3].valueDice2 = launchCoroutineAsync(players[3].dice2)
+            }
         }
     }
 
-    private suspend fun getRandomDeferredNum(): Deferred<Int> {
+    private suspend fun getRandomNumAsync(): Deferred<Int> {
         val value = CoroutineScope(Dispatchers.Default).async {
             delay((500..3000).random().toLong())
             getRandomNum()
@@ -45,13 +57,15 @@ class MainActivity : AppCompatActivity() {
         return (0..5).random()
     }
 
-    private fun launchCoroutine(imageView: ImageView): Deferred<Unit> {
+    private fun launchCoroutineAsync(imageView: ImageView): Deferred<Int> {
+
         return CoroutineScope(Dispatchers.Default).async {
-            val index = getRandomDeferredNum()
+            val index = getRandomNumAsync()
             while (index.isActive) {
                 updateUI(imageView)
             }
             imageView.setImageResource(diceList[index.await()])
+            index.await()
         }
     }
 
