@@ -141,12 +141,12 @@
 
     </LinearLayout>
 
-    <TextView
+    <Button
         android:id="@+id/launchButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="60dp"
-        android:text="Winner: "
+        android:text="@string/lanzar_dados"
         android:background="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

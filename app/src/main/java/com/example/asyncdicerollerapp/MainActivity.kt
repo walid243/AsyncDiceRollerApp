@@ -3,8 +3,10 @@ package com.example.asyncdicerollerapp
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.ImageView
+import android.widget.Toast
 import com.example.asyncdicerollerapp.databinding.ActivityMainBinding
 import kotlinx.coroutines.*
+
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -29,7 +31,7 @@ class MainActivity : AppCompatActivity() {
             Player(binding.player4.text.toString(), binding.dice7, binding.dice8)
         )
         binding.launchButton.setOnClickListener {
-            CoroutineScope(Dispatchers.Default).launch {
+            val job =CoroutineScope(Dispatchers.Default).launch {
                 players[0].valueDice1 = launchCoroutineAsync(players[0].dice1)
                 players[0].valueDice2 = launchCoroutineAsync(players[0].dice2)
 
@@ -41,6 +43,21 @@ class MainActivity : AppCompatActivity() {
 
                 players[3].valueDice1 = launchCoroutineAsync(players[3].dice1)
                 players[3].valueDice2 = launchCoroutineAsync(players[3].dice2)
+            }
+            CoroutineScope(Dispatchers.Default).launch {
+                job.join()
+                val result = listOf(
+                    players[0].result(),
+                    players[1].result(),
+                    players[2].result(),
+                    players[3].result()
+                )
+                val winner = result.maxOrNull()
+                val winnerIndex = result.indexOf(winner)
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@MainActivity, "The winner is ${players[winnerIndex].name}", Toast.LENGTH_SHORT).show()
+
+                }
             }
         }
     }
